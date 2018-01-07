@@ -1,0 +1,19 @@
+{
+  "name": "tm-stratum-proxy",
+  "version": "1.0.0",
+  "description": "Stratum Proxy with Multi Coin Support ",
+  "main": "index.js",
+  "repository": "git@github.com:trickymast3r/tm-stratum-proxy.git",
+  "author": "Tricky <tricky@gvr.vn>",
+  "license": "MIT",
+  "dependencies": {
+    "bignum": "^0.12.5",
+    "debug": "2.5.1",
+    "minimist": "1.2.0",
+    "uuid": "3.0.1"
+  },
+  "optionalDependencies": {
+    "cryptonote-util": "git://github.com/Snipa22/node-cryptonote-util.git#xmr-Nan-2.0",
+    "multi-hashing": "git+https://github.com/Snipa22/node-multi-hashing-aesni.git"
+  }
+}
