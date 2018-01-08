@@ -8,7 +8,8 @@ class Socket extends EventEmitter {
     super();
     this.userAgent = 'TmPoolProxyv1.0.0'
     this.config = config;
-    this.log =  Utils.log(this.constructor.name);    
+    this.log =  Utils.log(this.constructor.name);
+    this.on('response',this.response.bind(this));
     this.on('data',this.onData.bind(this));
     this.on('connect',this.onConnect.bind(this));
     this.on('close',this.onClose.bind(this));
@@ -26,13 +27,12 @@ class Socket extends EventEmitter {
     this.socket.setEncoding('utf8');
     this.socket.setKeepAlive(true,120);
     this.socket.setNoDelay(true);    
-    this.socket.connect(this.config.port,this.config.hostname,() => {
-      this.socket.on('connect',() => { this.emit('connect') });
-      this.socket.on('error',(err) => { this.emit('error',err) });
-      this.socket.on('close',(err) => { this.emit('close',err) });
-      this.socket.on('end',() => { this.emit('end') });
-      this.socket.on('data', (data) => { this.emit('socket_data',data) });      
-    });
+    this.socket.on('connect',() => { this.emit('connect') });
+    this.socket.on('error',(err) => { this.emit('error',err) });
+    this.socket.on('close',(err) => { this.emit('close',err) });
+    this.socket.on('end',() => { this.emit('end') });
+    this.socket.on('data', (data) => { this.emit('data',data) });      
+    this.socket.connect(this.config.port,this.config.hostname)
     return this;
   }
   close() {
@@ -45,30 +45,37 @@ class Socket extends EventEmitter {
   request(data) {
     if (!this.socket.writable) throw new Error('Socket is not writable',data)
     try {
+      this.log.debug('Send Data '+data+' ['+this.config.href+']');
       this.socket.write(data+'\n');
     }
     catch(e) {
-      throw new Error('Error when send data ',data,e)
+      throw new Error('Error when send data ['+this.config.href+']',data,e)
     }
+  }
+  response(data) {
+    if(data.trim() == '') return;
+    this.log.debug('Get Response '+data+' ['+this.config.href+']')
   }
   onData(data) {
     try {
+      console.log('[RAWDATA]',data,'[/RAWDATA]');
       if(data.indexOf('\n') != -1) {
-        data = data.split('\n').forEach((item) => {        
-          item = item.toString().replace(/[\r\x00]/g, "");
-          this.onData(item);
-        });      
+        // data = data.split('\n').forEach((item) => {                  
+        //   item = item.toString().replace(/[\r\x00]/g, "");
+        //   if(item.trim() == '') return false;
+        //   this.onData(item);
+        //   return item;
+        // });      
       } else {
-        this.log.debug('Get Response '+data)
-        this.emit('response',data);
+        //this.emit('response',data);
       }
     }
     catch(e) {
-      throw new Error('Error when receive data ',data,e)
+      throw new Error('Error when receive data from ['+this.config.href+']',data,e)
     }
   }
   onConnect() {
-    this.log.info(`Connected to  '${this.config.href}'`);
+    this.log.info(`Connected to '${this.config.href}'`);
   }
   onClose() {
     this.socket = null;

@@ -1,13 +1,22 @@
 export default {
   coins: {
-    eth: {
+    btc: {
       pools: [
-        // "getwork://eth-asia1.nanopool.org:8888",
-        "stratum://eth-asia1.nanopool.org:9999",
+        "stratum+tcp://stratum.slushpool.com:3333",
       ],
-      address: '0x32be343b94f860124dc4fee278fdcbd38c102d88',
+      address: '1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX',
       password: 'x'
     },
+
+
+    // eth: {
+    //   pools: [
+    //     // "getwork://eth-asia1.nanopool.org:8888",
+    //     "stratum://eth-asia1.nanopool.org:9999",
+    //   ],
+    //   address: '0x32be343b94f860124dc4fee278fdcbd38c102d88',
+    //   password: 'x'
+    // },
     // etn: {
     //   pools: [
     //     "stratum://eupool.electroneum.com:3333?keepAlive=true&diff=120000",

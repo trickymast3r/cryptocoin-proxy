@@ -45,19 +45,43 @@ class Stratum extends Socket {
         if(this.requestMethod[method][i] in params) 
           sendObj.params.push(params[this.requestMethod[method][i]])
       }
-    }    
+    }
+    this.request[id] = false;
     return super.request(JSON.stringify(sendObj));
   }
-  response(data) {
-    if(data.indexOf('\n') != -1) {
-      data = data.split('\n').map((item) => {        
-        item = item.toString().replace(/[\r\x00]/g, "");
-        if(item.trim() == '') return false;
-        item = JSON.parse(item);
-        return item;
-      });
+  response(data) {    
+    try {
+      super.response(data);
+      data = JSON.parse(data);
+      if(!(data instanceof Object)) throw new Error('Error when parsing response');
+      if(data.hasOwnProperty('error') && data.error != null) return this.emit('error',data.error);
+      if(data.hasOwnProperty('id') && this.request.hasOwnProperty(data.id)) {
+        if(data.hasOwnProperty('result')) this.response[data.id] = data.result;
+        delete this.request[data.id];
+        return;
+      }
+      if(data.hasOwnProperty('method') && data.hasOwnProperty('params')) {
+        if(data.method == 'mining.set_difficulty') {
+          this.emit('set_difficulty',data.params[0]);
+        }
+        if(data.method == 'mining.notify') {
+          this.emit('job',{
+            jobId: data.params[0],
+            previousHash: data.params[1],
+            coinbase1: data.params[2],
+            coinbase2: data.params[3],
+            branches: data.params[4],
+            blockVersion: data.params[5],
+            nbit: data.params[6],
+            ntime: data.params[7],
+            clean: data.params[8]
+          });
+        }
+      } 
     }
-    return data;
+    catch(e) {
+      throw new Error('Error when parsing response '+e.message,data);
+    }
   }
 }
 export default Stratum

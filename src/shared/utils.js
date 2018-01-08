@@ -13,26 +13,19 @@ class Utils {
       debug: debug('tm:debug:'+namespace.toLowerCase()),
     }
   }
+  
   static getPoolInfo(uri) {
     if(uri.indexOf('://') == -1)
       uri = 'getwork://'+uri;
     let infoObj = new URL(uri);
-    let ret = Object.assign(Utils.simplify(infoObj),{
-      params: {}
-    });
+    let ret = _.toPlainObject(infoObj)
     for (const [name, value] of infoObj.searchParams) {
       ret.params[name] = value;
     }
     return ret;
   }
-  static simplify(object) {
-    let rs = {};
-    for(let i in object) {
-      if(['function','object'].indexOf(typeof(object[i])) == -1) {
-        rs[i] = object[i];
-      }
-    }
-    return rs;
+  static simplify(object) {    
+    return _.toPlainObject(object);
   }
   static connect(poolInfo) {
     if(typeof(poolInfo) != 'object') throw new Error('Not Valid Pool Info')
