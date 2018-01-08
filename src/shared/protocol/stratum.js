@@ -26,6 +26,7 @@ class Stratum extends Base {
     };
   }
   onConnect(socket) {
+    
   }
   getMethod(method) {
     let convertableMethod = {
