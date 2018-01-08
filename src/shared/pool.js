@@ -1,86 +1,82 @@
-import tls from 'tls'
-import net from 'net'
-import url from 'url'
-import debug from 'debug';
-import Utils from './utils';
 import EventEmitter from 'events'
+import Utils from './utils';
+import Config from './config'
+import protocol from './protocol';
+
 class Pool extends EventEmitter {
-  constructor(coin,config) {
+  constructor(coin) {
     super();
     this.coin = coin;
-    this.config = config || {};
-    this.debug = debug('tm:pool:'+coin);
-    this.currentPool = null;
-    this.sendId = 1;
+    this.config = Config.getInstance().coins[coin];
+    this.currentPool = this.getPoolInfo();
+    this.protocol = protocol(this.currentPool);
     this.socket = null;
-    this.status = 0;
-    this.jobs = {};
+    this.retry = 0;
+    this.log =  Utils.log(this.constructor.name+':'+this.coin);
     this.on('job',this.onJob.bind(this));
+    this.on('share',this.onShare.bind(this));
+    this.on('data',this.onData.bind(this));
+    this.on('connect',this.onConnect.bind(this));
+    this.on('close',this.onClose.bind(this));
     this.on('error',this.onError.bind(this));
+    this.on('end',this.onEnd.bind(this));
   }
   onData(data) {
     try {
         let jsonData = JSON.parse(data);
-        if('id' in jsonData) {
-          this.debug(`Result #${jsonData.id}:`+JSON.stringify(jsonData));
+        if('id' in jsonData && 'result' in jsonData) {
+          this.log.debug(`Result #${jsonData.id}:`+JSON.stringify(jsonData.result));
           if('error' in jsonData && jsonData.error != null && jsonData.error != 'null') {
             this.emit('error',jsonData.error);
           } else if('job' in jsonData.result) {
             this.emit('job',jsonData.result.job);
           } else {
-            console.log('Unknown Data: ',jsonData)
+            this.log.warn('Unknown Data: ',jsonData)
           }
         } else {
           this.emit(jsonData.method,jsonData.params);
         }
     }
     catch (e) {
-      this.debug(`Socket error from ${this.currentPool.href} Message: ${data}`);
-      debug(e);
+      this.log.debug(`Socket error from ${this.currentPool.href} Message: ${data}`);
+      this.log.debug(e);
       this.connect();
     }
   }
   onJob(data) {
     if('job_id' in data && 'target' in data && 'blob' in data) {
       this.jobs[data.job_id] = data;
-      this.debug(`New Job [${data.job_id}] with target '${data.target}'`);
+      this.log.info(`New Job [${data.job_id}] with target '${data.target}'`);
     }
+  }
+  onShare(data) {
+    console.log('SHARE',data);
   }
   connect() {
     this.close();
-    this.currentPool = this.getPoolInfo();
-    this.debug(`Connecting to ${this.currentPool.href}`);
-    this.status = 0;
-    switch(this.currentPool.protocol) {
-      case 'tls:':
-      case 'ssl:':
-      case 'stratum+tcps:':
-        this.socket = tls.connect(this.currentPool.port,this.currentPool.hostname,{rejectUnauthorized: this.currentPool.allowSelfSignedSSL});
-      break;
-      case 'stratum:':
-        this.socket = net.connect(this.currentPool.port,this.currentPool.hostname);
-      break;
-      default:
-        console.error(`Not Support Protocol ${this.currentPool.protocol} '${this.currentPool.href}'`);
-      break;
+    if(this.retry > 5) {
+      this.retry = 0;
+      this.currentPool = this.getPoolInfo();
     }
-    this.socket.on('connect',this.onConnect.bind(this));
-    this.socket.on('error',this.onError.bind(this));
-    this.socket.on('end',this.onEnd.bind(this));
-    this.socket.on('data', this.onData.bind(this));
+    this.log.debug(`Connecting to '${this.currentPool.href}' #${this.retry}`);
+    this.socket = Utils.connect(this.currentPool);
+    this.socket.on('connect',() => { this.emit('connect') });
+    this.socket.on('error',(err) => { this.emit('error',err) });
+    this.socket.on('end',() => { this.emit('end') });
+    this.socket.on('data', (data) => { this.emit('data',data) });
     return this;
   }
-  login() {
-    this.send('login', {
+  login(workerId) {
+    return this.send('login', {
+        id: 1,
         login: this.currentPool.username || this.config.address || this.config.username,
         pass: this.currentPool.password || this.config.password,
-        agent: 'tm-stratum-proxy/1.0.0'
+        agent: this.config.agent
     });
-    return this;
   }
   share(data) {
     if (this.lastJob.id == data.jobID){
-      this.sendData('submit', {
+      this.send('submit', {
           job_id: data.jobID,
           nonce: data.nonce,
           result: data.resultHash,
@@ -89,49 +85,69 @@ class Pool extends EventEmitter {
       });
     }
   }
+  keepAlive() {
+    this.send('keepalived',{id: this.sequence,})
+  }
   send(method, params={}) {
     if (!this.socket.writable){
         return false;
     }
+    let sendID = this.sequence;
+    if('id' in params) {
+       sendID = params.id;
+       delete params.id;
+    }
     let rawSend = {
         method: method,
-        id: this.sendId++,
+        id: sendID,
         params: params
     };
+    this.sequence++;
     this.socket.write(JSON.stringify(rawSend) + '\n');
-    this.debug(`Send #${rawSend.id} to '${this.currentPool.href}': ${JSON.stringify(rawSend)}`);
+    this.log.debug(`Send #${rawSend.id} to '${this.currentPool.href}': ${JSON.stringify(rawSend)}`);
     return this;
   }
+  reset() {
+    this.status = 0;
+    this.sequence = 1;
+    this.jobs = {};
+    this.retry = 0;
+  }
   close() {
+    this.retry++;
     if(this.socket != null) {
-      this.debug(`Close Current Socket of ${this.currentPool.href}`);
       this.socket.end();
       this.socket.destroy();
       this.socket = null;
+      this.emit('close');
     }
   }
   onConnect() {
-    this.socket.setEncoding('utf8');
-    this.socket.setKeepAlive(true);
-    console.log(`Connected to pool: ${this.currentPool.href}`);
-    this.status = 1;
-    this.emit('connect',this);
-    this.login();
+    if(this.socket != null) {
+      this.status = 1;
+      this.socket.setEncoding('utf8');
+      this.socket.setKeepAlive(true);
+      this.log.info(`Connected to pool: ${this.currentPool.href}`);
+      this.login();
+    }
+  }
+  onClose() {
+    if(this.socket != null) {
+      this.log.info(`Close Connection To ${this.currentPool.href}`);
+    }
+    if(this.config.pools.length > 0) this.connect();
   }
   onError(err) {
-    this.status = 2;
-    this.debug(`Error on ${this.currentPool.href}`,err);
+    this.log.info(`Error on ${this.currentPool.href}`,err.message);
+    this.close();
   }
   onEnd() {
-    this.debug(`End Connection of '${this.currentPool.href}'`,err);
-    this.emit('end');
+    this.log.info(`End Connection To ${this.currentPool.href}`);
+    this.close();
   }
   getPoolInfo() {
     let poolInfo = this.config.pools.shift();
-    return Utils.getUrl(poolInfo)
-  }
-  getPoolOptions() {
-    return Utils.getParams(this.currentPool);
+    return Utils.getPoolInfo(poolInfo)
   }
 }
 export default Pool

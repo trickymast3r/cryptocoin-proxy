@@ -7,13 +7,18 @@
   "author": "Tricky <tricky@gvr.vn>",
   "license": "MIT",
   "dependencies": {
-    "bignum": "^0.12.5",
     "debug": "2.5.1",
+    "lodash": "^4.17.4",
     "minimist": "1.2.0",
     "uuid": "3.0.1"
   },
   "optionalDependencies": {
-    "cryptonote-util": "git://github.com/Snipa22/node-cryptonote-util.git#xmr-Nan-2.0",
+    "cryptonote-util": "git+https://github.com/Snipa22/node-cryptonote-util.git#xmr-Nan-2.0",
     "multi-hashing": "git+https://github.com/Snipa22/node-multi-hashing-aesni.git"
+  },
+  "devDependencies": {
+    "babel-plugin-lodash": "^3.3.2",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.1"
   }
 }

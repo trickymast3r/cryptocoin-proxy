@@ -5,14 +5,14 @@ import fs from 'fs'
 import uuid from 'uuid/v4'
 import cluster from 'cluster'
 import EventEmitter from 'events'
-
 import Pool from './shared/pool'
-
+import Utils from './shared/utils'
 class Master extends EventEmitter {
   constructor(config) {
     super();
-    this.config = config || {};
-    this.activePools = {}
+    this.config = config;
+    this.activePools = {};
+    this.log =  Utils.log(this.constructor.name);
     let masterEvents = ['disconnect','exit','fork','listening','message','online','setup'];
     masterEvents.forEach((item) => {
       cluster.on(item,(...args) => { this.emit(item,...args) });
@@ -30,14 +30,15 @@ class Master extends EventEmitter {
       this.addWorker();
     }
     for(let j in this.config.coins) {
-      this.addPool(j,this.config.coins[j]);
+      if(j == 'default') continue;
+      this.addPool(j);
     }
   }
   onMessage(msg) {
 
   }
   onJob(coin,job) {
-
+    this.log.info([coin,job]);
   }
   onShare(coin,job) {
 
@@ -45,11 +46,11 @@ class Master extends EventEmitter {
   onExit() {
 
   }
-  addPool(coin,config) {
+  addPool(coin) {
     if (this.activePools.hasOwnProperty(coin)) return this.activePools[coin];
-    let pool = new Pool(coin,config);
+    let pool = new Pool(coin);
     pool.on('job',(job) => {
-      this.emit('newJob',coin,job);
+      this.emit('job',coin,job);
     });
     pool.on('share',(job) => {
       this.emit('share',coin,job);

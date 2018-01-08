@@ -1,11 +1,13 @@
 import minimist from 'minimist'
+import cluster from 'cluster'
 import Master from './master'
 import Worker from './worker'
-import cluster from 'cluster';
+import defaultConfig from './config';
+import Config from './shared/config'
 
 class Application {
   constructor(config) {
-    this.config = config || {};
+    this.config = Config.getInstance(config,defaultConfig)
   }
   start() {
     if (cluster.isMaster) {
