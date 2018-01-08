@@ -1,7 +1,13 @@
-import Base from './base';
-class GetWork extends Base {
+import Http from './http';
+class GetWork extends Http {
   constructor() {
-
+    super()
+  }
+  request(method,params={}) {
+    
+  }
+  response() {
+    
   }
 }
 export default GetWork

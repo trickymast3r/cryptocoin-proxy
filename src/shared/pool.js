@@ -10,68 +10,22 @@ class Pool extends EventEmitter {
     this.config = Config.getInstance().coins[coin];
     this.currentPool = this.getPoolInfo();
     this.protocol = protocol(this.currentPool);
-    this.socket = null;
-    this.retry = 0;
     this.log =  Utils.log(this.constructor.name+':'+this.coin);
+    this.protocol.on('job',(data) => { this.emit('job') });
+    this.protocol.on('share',(data) => { this.emit('share') });
+    this.protocol.on('notify',(data) => { this.emit('notify') });
     this.on('job',this.onJob.bind(this));
     this.on('share',this.onShare.bind(this));
-    this.on('data',this.onData.bind(this));
-    this.on('connect',this.onConnect.bind(this));
-    this.on('close',this.onClose.bind(this));
-    this.on('error',this.onError.bind(this));
-    this.on('end',this.onEnd.bind(this));
+    this.on('notify',this.onNotify.bind(this));
   }
-  onData(data) {
-    try {
-        let jsonData = JSON.parse(data);
-        if('id' in jsonData && 'result' in jsonData) {
-          this.log.debug(`Result #${jsonData.id}:`+JSON.stringify(jsonData.result));
-          if('error' in jsonData && jsonData.error != null && jsonData.error != 'null') {
-            this.emit('error',jsonData.error);
-          } else if('job' in jsonData.result) {
-            this.emit('job',jsonData.result.job);
-          } else {
-            this.log.warn('Unknown Data: ',jsonData)
-          }
-        } else {
-          this.emit(jsonData.method,jsonData.params);
-        }
-    }
-    catch (e) {
-      this.log.debug(`Socket error from ${this.currentPool.href} Message: ${data}`);
-      this.log.debug(e);
-      this.connect();
-    }
-  }
-  onJob(data) {
-    if('job_id' in data && 'target' in data && 'blob' in data) {
-      this.jobs[data.job_id] = data;
-      this.log.info(`New Job [${data.job_id}] with target '${data.target}'`);
-    }
-  }
-  onShare(data) {
-    console.log('SHARE',data);
-  }
-  connect() {
-    this.close();
-    if(this.retry > 5) {
-      this.retry = 0;
-      this.currentPool = this.getPoolInfo();
-    }
-    this.log.debug(`Connecting to '${this.currentPool.href}' #${this.retry}`);
-    this.socket = Utils.connect(this.currentPool);
-    this.socket.on('connect',() => { this.emit('connect') });
-    this.socket.on('error',(err) => { this.emit('error',err) });
-    this.socket.on('end',() => { this.emit('end') });
-    this.socket.on('data', (data) => { this.emit('data',data) });
-    return this;
+  start() {
+    this.protocol.start();
   }
   login(workerId) {
-    return this.send('login', {
-        id: 1,
-        login: this.currentPool.username || this.config.address || this.config.username,
-        pass: this.currentPool.password || this.config.password,
-        agent: this.config.agent
+    return this.send('login',{
+      _sequence: 1,
+      username: this.currentPool.username || this.config.address || this.config.username,
+      password: this.currentPool.password || this.config.password,
     });
   }
   share(data) {
@@ -85,26 +39,19 @@ class Pool extends EventEmitter {
       });
     }
   }
-  keepAlive() {
-    this.send('keepalived',{id: this.sequence,})
-  }
   send(method, params={}) {
     if (!this.socket.writable){
         return false;
     }
-    let sendID = this.sequence;
-    if('id' in params) {
-       sendID = params.id;
-       delete params.id;
+    let sequence = this.sequence;
+    if('_sequence' in params) {
+      sequence = params._sequence;
     }
-    let rawSend = {
-        method: method,
-        id: sendID,
-        params: params
-    };
+    let sendObj = this.protocol.getRequest(sequence,method,params);
+    this.request[this.sequence] = false;
     this.sequence++;
-    this.socket.write(JSON.stringify(rawSend) + '\n');
-    this.log.debug(`Send #${rawSend.id} to '${this.currentPool.href}': ${JSON.stringify(rawSend)}`);
+    this.socket.write(JSON.stringify(sendObj) + '\n');
+    this.log.debug(`Send #${sequence} to '${this.currentPool.href}': ${JSON.stringify(sendObj)}`);
     return this;
   }
   reset() {
@@ -122,11 +69,33 @@ class Pool extends EventEmitter {
       this.emit('close');
     }
   }
+  onData(data) {
+    try {
+      let datas = this.protocol.getResponse(data);
+      console.log(datas);
+      datas.forEach((item) => {
+        console.log(`RESPONSE #${item.id}`,item);
+      })      
+    }
+    catch (e) {
+      this.log.debug(`Socket error from ${this.currentPool.href} Message: ${data}`);
+      this.log.debug(e);
+      this.connect();
+    }
+  }
+  onJob(data) {
+    if('job_id' in data && 'target' in data && 'blob' in data) {
+      this.jobs[data.job_id] = data;
+      this.log.info(`New Job [${data.job_id}] with target '${data.target}'`);
+    }
+  }
+  onShare(data) {
+    console.log('SHARE',data);
+  }
   onConnect() {
     if(this.socket != null) {
       this.status = 1;
-      this.socket.setEncoding('utf8');
-      this.socket.setKeepAlive(true);
+      this.protocol.afterConnect(this.socket);
       this.log.info(`Connected to pool: ${this.currentPool.href}`);
       this.login();
     }

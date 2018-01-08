@@ -1,4 +1,5 @@
 import { URL } from 'url'
+import _ from 'lodash'
 import tls from 'tls'
 import net from 'net'
 import debug from 'debug';
@@ -14,7 +15,7 @@ class Utils {
   }
   static getPoolInfo(uri) {
     if(uri.indexOf('://') == -1)
-      uri = 'http://'+uri;
+      uri = 'getwork://'+uri;
     let infoObj = new URL(uri);
     let ret = Object.assign(Utils.simplify(infoObj),{
       params: {}
@@ -44,6 +45,10 @@ class Utils {
       case 'stratum+ssl:':
         return tls.connect(poolInfo.port,poolInfo.hostname,{ rejectUnauthorized: poolInfo.allowSelfSSL || false });
       break;
+      case 'getwork+ssl:':
+        
+      break;
+      case 'getwork:':
       case 'stratum:':
         return net.connect(poolInfo.port,poolInfo.hostname);
       break;

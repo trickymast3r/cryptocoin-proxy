@@ -1,7 +1,7 @@
-import Base from './base';
-class Monero extends Base {
+import Socket from './socket';
+class Monero extends Socket {
   constructor() {
-
+    super()
   }
 
 }

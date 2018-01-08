@@ -55,7 +55,7 @@ class Master extends EventEmitter {
     pool.on('share',(job) => {
       this.emit('share',coin,job);
     });
-    pool.connect();
+    pool.start();
     this.activePools[coin] = pool;
   }
 }
