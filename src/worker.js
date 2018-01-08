@@ -1,22 +1,17 @@
-import fs from 'fs'
-import tls from 'tls'
-import net from 'net'
-import url from 'url'
 import EventEmitter from 'events'
-
 import Utils from './shared/utils'
 
 class Worker extends EventEmitter {
   constructor(config) {
     super();
     this.config = config || {};
+    this.log = Utils.log(this.constructor.name);
     this.activeServers = {};
   }
-  addServer(data) {
-    if (this.activeServers.hasOwnProperty(data.uri) !== -1) {
-      return false;
-    }
-    let urlInfo = Utils.getUrl(data.uri);
+  addServer(uri) {
+    console.log(uri);
+    if (this.activeServers.hasOwnProperty(uri)) return false;
+    let urlInfo = Utils.uriToConfig(uri);
     if (urlInfo.protocol in ['ssl:','tls:']) {
         let server = tls.createServer({ key: fs.readFileSync('cert.key'), cert: fs.readFileSync('cert.pem') });
     } else {
@@ -31,9 +26,10 @@ class Worker extends EventEmitter {
     });
   }
   start() {
-    for(let i in this.config.ports) {
-      this.addServer(this.config.ports[i]);
-    }
+    this.log.debug(`Start Worker ${process.pid}`)
+    this.config.listeners.forEach((uri) => {
+      this.addServer(uri);
+    });
   }
   onConnection(socket) {
 

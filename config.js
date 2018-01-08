@@ -7,8 +7,6 @@ export default {
       address: '1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX',
       password: 'x'
     },
-
-
     // eth: {
     //   pools: [
     //     // "getwork://eth-asia1.nanopool.org:8888",
@@ -52,9 +50,9 @@ export default {
     // }
   },
   listeners: [
-    'ssl://0.0.0.0:1111?diff=120000',
-    'ssl://0.0.0.0:2222?diff=120000',
-    'ssl://0.0.0.0:3333?diff=120000'
+    'stratum://0.0.0.0:1111?diff=120000',
+    'getwork://0.0.0.0:2222?diff=120000',
+    'monero://0.0.0.0:3333?diff=120000'
   ],
   devFee: 1,
   agent: 'tm-stratum-proxy/1.0.0',

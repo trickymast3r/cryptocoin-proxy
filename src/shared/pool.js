@@ -11,24 +11,24 @@ class Pool extends EventEmitter {
     this.currentPool = this.getPoolInfo();
     this.log =  Utils.log(this.constructor.name+':'+this.coin);
     this.on('job',this.onJob.bind(this));
-    this.on('share',this.onShare.bind(this));
+    this.on('result',this.onResult.bind(this));
     this.on('notify',this.onNotify.bind(this));
   }
   start() {
     this.protocol = protocol(this.currentPool);
     this.protocol.on('job',(data) => { this.emit('job',data) });
-    this.protocol.on('share',(data) => { this.emit('share',data) });
+    this.protocol.on('result',(data) => { this.emit('result',data) });
     this.protocol.on('notify',(data) => { this.emit('notify',data) });
     this.protocol.start();
   }
   onJob() {
-    
+
   }
-  onShare() {
-    
+  onResult() {
+
   }
   onNotify() {
-    
+
   }
   getPoolInfo() {
     let poolInfo = this.config.pools.shift();

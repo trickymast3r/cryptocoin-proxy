@@ -29,10 +29,6 @@ class Master extends EventEmitter {
     for (let i = 0; i < numWorkers; i++) {
       this.addWorker();
     }
-    for(let j in this.config.coins) {
-      if(j == 'default') continue;
-      this.addPool(j);
-    }
   }
   onMessage(msg) {
 
@@ -46,17 +42,17 @@ class Master extends EventEmitter {
   onExit() {
 
   }
+  addPools(pools) {
+    for(let j in this.config.coins) {
+      if(j == 'default') continue;
+      this.addPool(j);
+    }
+  }
   addPool(coin) {
-    if (this.activePools.hasOwnProperty(coin)) return this.activePools[coin];
-    let pool = new Pool(coin);
-    pool.on('job',(job) => {
-      this.emit('job',coin,job);
-    });
-    pool.on('share',(job) => {
-      this.emit('share',coin,job);
-    });
-    pool.start();
-    this.activePools[coin] = pool;
+    if (!this.activePools.hasOwnProperty(coin)) {
+      this.activePools[coin] = new Pool(coin);
+    }
+    return this;
   }
 }
 export default Master

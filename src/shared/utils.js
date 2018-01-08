@@ -13,7 +13,21 @@ class Utils {
       debug: debug('tm:debug:'+namespace.toLowerCase()),
     }
   }
-  
+  static zipObjectDeep(props,values) {
+    return _.zipObjectDeep(props,values);
+  }
+  static uriToConfig(uri) {
+    if(uri.indexOf('://') == -1)
+      uri = 'getwork://'+uri;
+    let infoObj = new URL(uri);
+    let ret = _.toPlainObject(infoObj)
+    console.log(_(infoObj.searchParams));
+    process.exit();
+    for (const [name, value] of infoObj.searchParams) {
+      ret.params[name] = value;
+    }
+    return ret;
+  }
   static getPoolInfo(uri) {
     if(uri.indexOf('://') == -1)
       uri = 'getwork://'+uri;
@@ -24,7 +38,7 @@ class Utils {
     }
     return ret;
   }
-  static simplify(object) {    
+  static simplify(object) {
     return _.toPlainObject(object);
   }
   static connect(poolInfo) {
@@ -39,7 +53,7 @@ class Utils {
         return tls.connect(poolInfo.port,poolInfo.hostname,{ rejectUnauthorized: poolInfo.allowSelfSSL || false });
       break;
       case 'getwork+ssl:':
-        
+
       break;
       case 'getwork:':
       case 'stratum:':

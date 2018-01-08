@@ -16,11 +16,12 @@ class Application {
       if (typeof argv.workers !== 'undefined') {
           numWorkers = Number(argv.workers);
       }
+      //cluster.fork();
       var master = new Master(this.config);
       master.start(numWorkers);
     } else {
       var worker = new Worker(this.config);
-      worker.start();
+      //worker.start();
     }
   }
 }
