@@ -1,10 +1,10 @@
 {
-  "name": "tm-stratum-proxy",
+  "name": "@m4st3r/cryptocoin-proxy",
   "version": "1.0.0",
   "description": "Stratum Proxy with Multi Coin Support ",
-  "main": "index.js",
-  "repository": "git@github.com:trickymast3r/tm-stratum-proxy.git",
-  "author": "Tricky <tricky@gvr.vn>",
+  "main": "./src/",
+  "repository": "git@github.com:trickymast3r/cryptocoin-proxy.git",
+  "author": "Tricky <tricky@t4v.net>",
   "license": "MIT",
   "dependencies": {
     "debug": "2.5.1",
@@ -15,7 +15,7 @@
   "optionalDependencies": {},
   "devDependencies": {
     "babel-plugin-lodash": "^3.3.2",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.6.1"
+    "babel-plugin-module-resolver": "^3.0.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0"
   }
 }

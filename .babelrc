@@ -1,5 +1,23 @@
 {
-  "plugins": [
-    ["transform-es2015-modules-commonjs"]
-  ]
+  "env": {
+    "production": {
+      "plugins": [
+        ["transform-es2015-modules-commonjs"],
+        ["module-resolver", {
+          "root": ["./lib"]
+        }]
+      ]
+    },
+    "development": {
+      "plugins": [
+        ["transform-es2015-modules-commonjs"],
+        ["module-resolver", {
+          "root": ["./packages"],
+          "alias": {
+            "tmstratum": "./src"
+          }
+        }]
+      ]
+    }
+  }
 }

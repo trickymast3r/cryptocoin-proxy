@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "main": "build/core.js",
+  "name": "@m4st3r/core",
+  "version": "0.1.0",
+  "description": "A collection of utility libraries developed by TM",
+  "repository": "trickymast3r/TMjs",
+  "license": "MIT"
+}
