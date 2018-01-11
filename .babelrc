@@ -1,22 +1,16 @@
 {
   "env": {
     "production": {
-      "plugins": [
+      "plugins": [  
         ["transform-es2015-modules-commonjs"],
-        ["module-resolver", {
-          "root": ["./lib"]
-        }]
       ]
     },
     "development": {
       "plugins": [
-        ["transform-es2015-modules-commonjs"],
-        ["module-resolver", {
-          "root": ["./packages"],
-          "alias": {
-            "tmstratum": "./src"
-          }
-        }]
+        ["@mrjs/babel-plugin-sresolver", {
+          "root": "../"
+        }],
+        ["transform-es2015-modules-commonjs"]
       ]
     }
   }

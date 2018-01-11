@@ -1,5 +1,5 @@
 {
-  "name": "@m4st3r/cryptocoin-proxy",
+  "name": "@mrjs/cryptocoin-proxy",
   "version": "1.0.0",
   "description": "Stratum Proxy with Multi Coin Support ",
   "main": "./src/",
@@ -8,6 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "debug": "2.5.1",
+    "glob": "^7.1.2",
     "lodash": "^4.17.4",
     "minimist": "1.2.0",
     "uuid": "3.0.1"
@@ -15,7 +16,6 @@
   "optionalDependencies": {},
   "devDependencies": {
     "babel-plugin-lodash": "^3.3.2",
-    "babel-plugin-module-resolver": "^3.0.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0"
   }
 }

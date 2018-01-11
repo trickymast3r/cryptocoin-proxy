@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import TMClass from 'tmjs/src/core/class'
+import TMClass from '@mrjs/core/class'
 
 class Config extends TMClass {
   constructor(config,defaultConfig={}) {
@@ -14,4 +14,4 @@ class Config extends TMClass {
     return this;
   }
 }
-export default Config;
+export default Config;  
