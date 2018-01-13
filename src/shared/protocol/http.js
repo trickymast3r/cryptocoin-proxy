@@ -1,6 +1,6 @@
 class Http {
   constructor() {
-    
+
   }
   login(data) {
   }
@@ -14,4 +14,4 @@ class Http {
 
   }
 }
-export default Http
+export default Http;

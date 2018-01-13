@@ -1,13 +1,14 @@
 import Http from './http';
+
 class GetWork extends Http {
   constructor() {
-    super()
+    super();
   }
-  request(method,params={}) {
-    
+  request(method, params = {}) {
+
   }
   response() {
-    
+
   }
 }
-export default GetWork
+export default GetWork;

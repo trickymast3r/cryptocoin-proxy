@@ -1,13 +1,13 @@
 {
   "env": {
     "production": {
-      "plugins": [  
-        ["transform-es2015-modules-commonjs"],
+      "plugins": [
+        ["transform-es2015-modules-commonjs"]
       ]
     },
     "development": {
       "plugins": [
-        ["@mrjs/babel-plugin-sresolver", {
+        ["../pkgsolver", {
           "root": "../"
         }],
         ["transform-es2015-modules-commonjs"]

@@ -1,9 +1,0 @@
-{
-  "private": true,
-  "name": "@m4st3r/cryptocoin",
-  "version": "0.1.0",
-  "description": "A collection of utility libraries developed by TM",
-  "main": "./src",
-  "repository": "trickymast3r/TMjs",
-  "license": "MIT"
-}

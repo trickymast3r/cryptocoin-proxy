@@ -1,33 +1,35 @@
-import minimist from 'minimist'
-import cluster from 'cluster'
-import Coin from './shared/coin'
-import Master from './master'
-import Worker from './worker'
-import defaultConfig from './config';
-import Config from './shared/config'
+import Utils from '@shared/utils';
+import BaseClass from '@mrjs/core/class';
 
-class Application {
+import minimist from 'minimist';
+import cluster from 'cluster';
+
+import Master from './master';
+import Worker from './worker';
+import defaultConfig from './config';
+import Config from './shared/config';
+
+class Application extends BaseClass {
   constructor(config) {
-    this.config = Config.getInstance(config, defaultConfig)
+    super();
+    this.config = Config.getInstance(config, defaultConfig);
   }
   start() {
     if (cluster.isMaster) {
       let numWorkers = 1;
-      let argv = minimist(process.argv.slice(2));
+      const argv = minimist(process.argv.slice(2));
       if (typeof argv.workers !== 'undefined') {
         numWorkers = Number(argv.workers);
       }
-      //cluster.fork();
-      var coin = new Coin('btc');
-      var master = new Master(this.config);
+      const master = new Master(this.config);
       master.start(numWorkers).then(() => {
-        console.log(`Master Started #${process.pid}`)
+        Utils.info(`Master Started #${process.pid}`);
       });
     } else {
-      var worker = new Worker(this.config);
-      //worker.start().then(() => {
-      //   console.log(`Worker Started #${process.pid}`)
-      // });;
+      const worker = new Worker(this.config);
+      worker.start().then(() => {
+        Utils.info(`Worker Started #${process.pid}`);
+      });
     }
   }
 }

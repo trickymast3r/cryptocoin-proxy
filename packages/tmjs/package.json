@@ -1,9 +1,0 @@
-{
-  "private": true,
-  "name": "@tm/js",
-  "version": "0.1.0",
-  "description": "A collection of utility libraries developed by TM",
-  "main": "index.js",
-  "repository": "trickymast3r/TMjs",
-  "license": "MIT"
-}

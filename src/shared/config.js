@@ -1,17 +1,17 @@
 import _ from 'lodash';
-import TMClass from '@mrjs/core/class'
+import TMClass from '@mrjs/core/class';
 
 class Config extends TMClass {
-  constructor(config,defaultConfig={}) {
+  constructor(config, defaultConfig = {}) {
     super();
-    _.defaultsDeep(this,config,defaultConfig);
+    _.defaultsDeep(this, config, defaultConfig);
   }
-  get(path,defaultValue) {
-    return _.get(this,path,defaultValue);
+  get(path, defaultValue) {
+    return _.get(this, path, defaultValue);
   }
-  set(path,value) {
-    _.set(this,path,value);
+  set(path, value) {
+    _.set(this, path, value);
     return this;
   }
 }
-export default Config;  
+export default Config;

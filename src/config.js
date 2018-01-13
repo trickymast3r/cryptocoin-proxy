@@ -5,7 +5,7 @@ export default {
       address: null,
       username: null,
       password: 'x',
-      allowSelfSSL: true
+      allowSelfSSL: true,
     },
   },
   listeners: [
@@ -13,4 +13,4 @@ export default {
   ],
   devFee: 1,
   agent: 'tm-stratum-proxy/1.0.0',
-}
+};

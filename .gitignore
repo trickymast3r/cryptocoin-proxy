@@ -6,3 +6,18 @@ node_modules/
 .env
 build/*
 ./config.js
+
+#default node structure
+node_modules/*
+build/*
+lib/*
+
+#hidden folder
+.*
+.yarn-integrity
+.env
+.DS_Store
+
+#node folder
+package-lock.json
+yarn.lock

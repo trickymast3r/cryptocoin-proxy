@@ -1,8 +1,8 @@
 import Socket from './socket';
+
 class Monero extends Socket {
   constructor() {
-    super()
+    super();
   }
-
 }
-export default Monero
+export default Monero;

@@ -2,12 +2,13 @@ export default {
   coins: {
     btc: {
       pools: [
-        "stratum+tcp://stratum.slushpool.com:3333",
+        'stratum+tcp://stratum.slushpool.com:3333',
       ],
       address: '1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX',
-      password: 'x'
-      
+      password: 'x',
     },
+
+
     // eth: {
     //   pools: [
     //     // "getwork://eth-asia1.nanopool.org:8888",
@@ -25,7 +26,7 @@ export default {
     //   ],
     //   address: '46XWBqE1iwsVxSDP1qDrxhE1XvsZV6eALG5LwnoMdjbT4GPdy2bZTb99kagzxp2MMjUamTYZ4WgvZdFadvMimTjvR6Gv8hL',
     //   username: null,
-    // },
+    // }
     // eth: {
     //   pools: [
     //     "stratum://asia1.ethermine.org:4444?keepAlive=true&diff=120000",
@@ -37,7 +38,6 @@ export default {
     //   username: null,
     //   password: 'x'
     // },
-
     // xmr: {
     //   pools: [
     //     "xmr-us-east1.nanopool.org:13333?keepAlive=true&diff=120000",
@@ -50,11 +50,13 @@ export default {
     //   password: 'x'
     // }
   },
+
+
   listeners: [
     'stratum://0.0.0.0:1111?diff=120000',
     'getwork://0.0.0.0:2222?diff=120000',
-    'monero://0.0.0.0:3333?diff=120000'
+    'monero://0.0.0.0:3333?diff=120000',
   ],
   devFee: 1,
   agent: 'tm-stratum-proxy/1.0.0',
-}
+};

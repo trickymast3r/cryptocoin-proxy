@@ -3,19 +3,28 @@
   "version": "1.0.0",
   "description": "Stratum Proxy with Multi Coin Support ",
   "main": "./src/",
+  "scripts": {
+    "build": "babel src/ -d build/"
+  },
   "repository": "git@github.com:trickymast3r/cryptocoin-proxy.git",
   "author": "Tricky <tricky@t4v.net>",
   "license": "MIT",
   "dependencies": {
     "debug": "2.5.1",
+    "flow": "^0.2.3",
     "glob": "^7.1.2",
     "lodash": "^4.17.4",
     "minimist": "1.2.0",
     "uuid": "3.0.1"
   },
-  "optionalDependencies": {},
   "devDependencies": {
+    "@mrjs/pkgsolver": "^0.0.4",
+    "babel-cli": "^6.26.0",
     "babel-plugin-lodash": "^3.3.2",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0"
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
+    "babel-preset-flow": "^6.23.0",
+    "eslint": "^4.15.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.8.0"
   }
 }
