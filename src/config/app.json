@@ -1,0 +1,9 @@
+{
+  "ROOT_PATH": "~/.crypro",
+  "HOME_PATH": "./",
+  "CONFIG_FILE": ".cryporc",
+  "LOG_PATH": "logs/",
+  "PID_PATH": "pids/",
+  "LOCK_PATH": "locks/",
+  "IPC_PATH": "ipcs/"
+}

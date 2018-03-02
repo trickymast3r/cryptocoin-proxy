@@ -1,13 +1,14 @@
-const a = require('@mrjs/utils/array')
-const b = new a();
-console.log("console.log(a);");
-console.log(a);
-a.implement();
-const c = new a();
-console.log("console.log(b.prototype)",b.prototype)
-console.log(c.prototype)
-console.log(Array.prototype);
-console.log(b)
-console.log(b.test)
-console.log(b.test2)
-console.log(Object.getOwnPropertyDescriptors(a));
+const { spawn } = require('child_process');
+const ls = spawn('cmd');
+
+ls.stdout.on('data', (data) => {
+  console.log(`stdout: ${data}`);
+});
+
+ls.stderr.on('data', (data) => {
+  console.log(`stderr: ${data}`);
+});
+
+ls.on('close', (code) => {
+  console.log(`child process exited with code ${code}`);
+});

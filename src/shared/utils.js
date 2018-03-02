@@ -1,10 +1,9 @@
+import BaseUtils from '@mrjs/utils';
 import { URL } from 'url';
 import tls from 'tls';
 import net from 'net';
 import debug from 'debug';
-
-import BaseUtils from '@mrjs/utils';
-
+import _ from 'lodash';
 
 class Utils extends BaseUtils {
   static log(namespace = '') {
@@ -15,10 +14,6 @@ class Utils extends BaseUtils {
       debug: debug(`tm:debug:${namespace.toLowerCase()}`),
     };
   }
-  static info(...args) {
-    return debug('main').apply(this, args);
-  }
-
   static zipObjectDeep(props, values) {
     return _.zipObjectDeep(props, values);
   }

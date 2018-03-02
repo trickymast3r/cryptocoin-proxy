@@ -1,0 +1,7 @@
+module.exports = {
+  UNKNOWN_TRANSPORT: 0,
+  UNKNOWN_SID: 1,
+  BAD_HANDSHAKE_METHOD: 2,
+  BAD_REQUEST: 3,
+  FORBIDDEN: 4,
+};

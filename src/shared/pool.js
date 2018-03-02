@@ -1,21 +1,18 @@
-import EventEmitter from 'events';
+import BaseEvent from '@mrjs/core/event';
 import Utils from './utils';
 import Config from './config';
-import protocol from './protocol';
+import Protocol from './protocol';
 
-class Pool extends EventEmitter {
-  constructor(coin) {
+class Pool extends BaseEvent {
+  constructor() {
     super();
-    this.coin = coin;
     this.config = Config.getInstance().coins[coin];
-    this.currentPool = this.getPoolInfo();
-    this.log = Utils.log(`${this.constructor.name}:${this.coin}`);
-    this.on('job', this.onJob.bind(this));
-    this.on('result', this.onResult.bind(this));
-    this.on('notify', this.onNotify.bind(this));
+    this.current = {};
+    this.on('master.message', this.fromMaster.bind(this));
+    this.on('socket.message', this.fromSocket.bind(this));
   }
   start() {
-    this.protocol = protocol(this.currentPool);
+    this.protocol = new Protocol(this.currentPool);
     this.protocol.on('job', (data) => { this.emit('job', data); });
     this.protocol.on('result', (data) => { this.emit('result', data); });
     this.protocol.on('notify', (data) => { this.emit('notify', data); });
@@ -29,10 +26,6 @@ class Pool extends EventEmitter {
   }
   onNotify() {
     return this;
-  }
-  getPoolInfo() {
-    const poolInfo = this.config.pools.shift();
-    return Utils.getPoolInfo(poolInfo);
   }
 }
 export default Pool;
